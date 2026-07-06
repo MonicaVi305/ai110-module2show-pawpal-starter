@@ -7,6 +7,73 @@
 - Briefly describe your initial UML design.
 - What classes did you include, and what responsibilities did you assign to each?
 
+Skeleton design:
+
+```python
+from dataclasses import dataclass, field
+from typing import List
+
+@dataclass
+class Pet:
+    name: str
+    age: int
+    weight: float
+    breed: str
+    color: str
+    mood: str
+    vitamins: List[str] = field(default_factory=list)
+    vaccines: List[str] = field(default_factory=list)
+
+@dataclass
+class Task:
+    title: str
+    description: str
+    priority: str
+    duration_minutes: int
+    scheduled_time: str | None = None
+
+@dataclass
+class Owner:
+    name: str
+    address: str
+    phone: str
+    pets: List[Pet] = field(default_factory=list)
+
+    def feed_dog(self, pet: Pet, frequency: str, quantity: str, food_type: str) -> None:
+        pass
+
+    def walk_dog(self, pet: Pet, frequency: str, time_of_day: str, place: str) -> None:
+        pass
+
+    def play_time(self, pet: Pet) -> None:
+        pass
+
+    def vet_visit(self, pet: Pet) -> None:
+        pass
+
+@dataclass
+class Veterinary:
+    health_info: str
+
+    def schedule_dog_visit(self, pet: Pet, appointment_date: str) -> None:
+        pass
+
+    def vaccines_for_dogs(self, pet: Pet) -> None:
+        pass
+
+    def blood_test_for_dogs(self, pet: Pet) -> None:
+        pass
+
+    def surgery_for_dogs(self, pet: Pet) -> None:
+        pass
+```
+
+Core actions represented in the skeleton:
+1. Feed pet: frequency, quantity, and food type.
+2. Walk a pet: frequency, time, and place.
+3. Give medicine: vitamins and medicines.
+4. Vet visits: vaccines, regular appointments, vitamins, medicines, blood tests, and next visit tracking.
+
 **b. Design changes**
 
 - Did your design change during implementation?
