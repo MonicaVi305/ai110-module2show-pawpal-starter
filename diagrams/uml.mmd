@@ -1,15 +1,29 @@
 classDiagram
-    %% Replace the placeholders below with your actual classes, attributes, methods, and relationships.
-    %% Keep this file updated so it matches your final implementation.
-
-    class ClassName {
-        +type attribute
-        +method() returnType
+    class Owner <<dataclass>> {
+        +String name
+        +List~String~ preferences
+        +List~Pet~ pets
     }
 
-    class AnotherClass {
-        +type attribute
-        +method() returnType
+    class Pet <<dataclass>> {
+        +String name
+        +String species
+        +List~String~ careNeeds
     }
 
-    ClassName --> AnotherClass : relationship
+    class Task <<dataclass>> {
+        +String title
+        +int durationMinutes
+        +String priority
+        +String category
+    }
+
+    class Scheduler {
+        +buildPlan(owner: Owner, pet: Pet) List~Task~
+        +explainPlan(tasks: List~Task~) String
+    }
+
+    Owner "1" --> "1..*" Pet : owns
+    Pet "1" --> "0..*" Task : includes
+    Scheduler --> Owner : uses
+    Scheduler --> Pet : uses
