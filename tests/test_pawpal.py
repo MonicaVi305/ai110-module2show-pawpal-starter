@@ -59,3 +59,42 @@ def test_detect_conflicts_reports_same_start_time() -> None:
     conflicts = scheduler.detect_conflicts([first_task, second_task])
 
     assert conflicts == [(first_task, second_task)]
+
+
+def test_mark_complete_creates_daily_recurring_task() -> None:
+    task = Task(
+        title="Daily vitamins",
+        description="",
+        priority="high",
+        duration_minutes=5,
+        scheduled_time="07:00",
+        frequency="daily",
+    )
+
+    recurring_task = task.mark_complete()
+
+    assert recurring_task is not None
+    assert recurring_task.completed is False
+    assert recurring_task.frequency == "daily"
+    assert recurring_task.due_date is not None
+
+
+def test_filter_tasks_by_completion_status() -> None:
+    scheduler = Scheduler()
+    completed_task = Task(title="Done", description="", priority="low", duration_minutes=5, completed=True)
+    pending_task = Task(title="Pending", description="", priority="medium", duration_minutes=10, completed=False)
+
+    filtered_tasks = scheduler.filter_tasks([completed_task, pending_task], completed=False)
+
+    assert filtered_tasks == [pending_task]
+
+
+def test_detect_conflicts_returns_empty_for_unique_times() -> None:
+    scheduler = Scheduler()
+    pet = Pet(name="Mochi", age=3, weight=12.5, breed="Labrador", color="Golden", mood="Happy")
+    first_task = Task(title="Walk", description="", priority="high", duration_minutes=20, pet=pet, scheduled_time="08:30")
+    second_task = Task(title="Feed", description="", priority="medium", duration_minutes=10, pet=pet, scheduled_time="09:00")
+
+    conflicts = scheduler.detect_conflicts([first_task, second_task])
+
+    assert conflicts == []
