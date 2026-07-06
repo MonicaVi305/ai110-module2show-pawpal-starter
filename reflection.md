@@ -92,12 +92,64 @@ A clean structure would be:
 - What constraints does your scheduler consider (for example: time, priority, preferences)?
 - How did you decide which constraints mattered most?
 
+The scheduler considers: (1) Priority rank: High > Medium > Low, (2) Scheduled time in HH:MM format, (3) Pet assignment. Priority mattered most because high-priority tasks (feeding, medication, vet visits) must happen consistently.
+
 **b. Tradeoffs**
 
 - Describe one tradeoff your scheduler makes.
 - Why is that tradeoff reasonable for this scenario?
 
 The scheduler uses a lightweight conflict check that only warns when two tasks share the same start time. This is simpler and easier to read than a full overlap-duration model, and it is reasonable for this starter app because the main goal is to surface obvious scheduling issues quickly.
+
+---
+
+## 3. AI Collaboration
+
+**a. How was AI used during project?**
+
+AI assisted with dataclass generation, sorting/filtering logic refinement, debugging Streamlit session state persistence issues, and UI layout suggestions for conflict resolution.
+
+**b. Example of rejecting AI suggestion**
+
+AI initially suggested binding st.selectbox() directly without session state, which caused pet selection to reset on every rerun. I rejected this and implemented explicit session state tracking with st.session_state.selected_pet_index to persist selections across button clicks.
+
+---
+
+## 4. Testing
+
+**a. What behaviors were tested and why?**
+
+- Task completion (mark_complete sets completed=True)
+- Task count tracking (owner.add_task adds to pet's list)
+- Chronological sorting (tasks sort by HH:MM order)
+- Pet-based filtering (filter_tasks by pet_name)
+- Conflict detection (two tasks at same time flagged)
+- Recurring task generation (mark_complete creates next-day task)
+- Status filtering (by completed/pending)
+- No-conflict detection (unique times return empty list)
+
+**b. Confidence level: 4/5 stars**
+
+Confident in core logic. Untested edge cases: multiple conflict pairs, invalid time formats, recurring tasks over multiple weeks, null pet references.
+
+---
+
+## 5. Reflection
+
+**What went well:**
+- Clean dataclass structure enabled easy extension
+- Streamlit session state worked reliably after understanding rerun behavior
+- Test suite caught bugs early
+- Conflict resolution UI allowed intuitive time editing
+
+**What to improve:**
+- More comprehensive edge case testing
+- Could add duration overlap checking (not just same start time)
+- Time picker widget instead of text input
+- Support custom recurring intervals (every 3 days, etc.)
+
+**Key takeaway:**
+Systematic design (UML → dataclasses → logic → UI) made the project manageable. Session state management was the trickiest part of Streamlit but became clear once I traced rerun behavior.
 
 ---
 

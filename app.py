@@ -17,7 +17,7 @@ Welcome to the PawPal+ starter app.
 
 This app now stores an Owner object in session state so your pet care data persists while you navigate.
 """
-)
+) 
 
 st.subheader("Owner Details")
 owner_name = st.text_input("Owner name", value=owner.name)
@@ -42,18 +42,21 @@ if st.button("Add pet"):
         mood=new_pet_mood,
     )
     st.success(f"Added {new_pet_name} to {owner.name}'s pets.")
-
+ 
 if not owner.pets:
     owner.add_pet(Pet(name="Mochi", age=3, weight=12.5, breed="dog", color="golden", mood="happy"))
 
-pet = owner.pets[0]
-pet_name = st.text_input("Pet name", value=pet.name)
-if pet_name != pet.name:
-    pet.name = pet_name
+if "selected_pet_index" not in st.session_state:
+    st.session_state.selected_pet_index = 0
 
-species = st.selectbox("Species", ["dog", "cat", "other"], index=["dog", "cat", "other"].index(pet.breed) if pet.breed in ["dog", "cat", "other"] else 0)
-if species != pet.breed:
-    pet.breed = species
+pet_index = st.selectbox(
+    "Select pet to manage",
+    list(range(len(owner.pets))),
+    format_func=lambda i: owner.pets[i].name,
+    index=st.session_state.selected_pet_index,
+)
+st.session_state.selected_pet_index = pet_index
+active_pet = owner.pets[pet_index]
 
 st.markdown("### Tasks")
 col1, col2, col3 = st.columns(3)
@@ -66,7 +69,7 @@ with col3:
 
 if st.button("Add task"):
     owner.add_task(
-        pet,
+        active_pet,
         Task(
             title=task_title,
             description=f"{priority} priority task",
@@ -75,24 +78,113 @@ if st.button("Add task"):
         ),
     )
 
+scheduler = Scheduler()
 all_tasks = [task for pet_item in owner.pets for task in pet_item.tasks]
-if all_tasks:
+pet_options = ["All"] + [pet_item.name for pet_item in owner.pets]
+filter_pet = st.selectbox("Filter by pet", pet_options)
+status_filter = st.selectbox("Show tasks", ["All", "Pending", "Completed"])
+
+completed_value = None
+if status_filter == "Completed":
+    completed_value = True
+elif status_filter == "Pending":
+    completed_value = False
+
+filtered_tasks = scheduler.filter_tasks(
+    all_tasks,
+    completed=completed_value,
+    pet_name=None if filter_pet == "All" else filter_pet,
+)
+ 
+sorted_tasks = scheduler.sort_by_time(filtered_tasks)
+
+if sorted_tasks:
     st.write("Current tasks:")
     task_rows = [
-        {"pet": task.pet.name if task.pet else pet.name, "title": task.title, "priority": task.priority, "duration": task.duration_minutes}
-        for task in all_tasks
+        {
+            "pet": task.pet.name if task.pet else "unknown",
+            "title": task.title,
+            "priority": task.priority,
+            "duration": task.duration_minutes,
+            "time": task.scheduled_time or "TBD",
+            "status": "Done" if task.completed else "Pending",
+        }
+        for task in sorted_tasks
     ]
     st.table(task_rows)
 else:
-    st.info("No tasks yet. Add one above.")
+    st.info("No tasks match the current filters.")
 
 st.divider()
-
+ 
 st.subheader("Build Schedule")
 if st.button("Generate schedule"):
-    scheduler = Scheduler()
-    plan = scheduler.build_plan(owner)
-    st.success("Today's Schedule")
-    for task in plan:
-        pet_name_for_task = task.pet.name if task.pet else "unknown pet"
-        st.write(f"- {task.title} for {pet_name_for_task} at {task.scheduled_time}")
+    st.session_state.current_plan = scheduler.build_plan(owner)
+
+if "current_plan" in st.session_state:
+    plan = st.session_state.current_plan
+    conflict_message = scheduler.conflict_warning(plan)
+    conflicts = scheduler.detect_conflicts(plan)
+
+    if conflicts:
+        st.warning(f"⚠️ {conflict_message}")
+        st.write("**Resolve conflicts by editing task times:**")
+        
+        for idx, (task1, task2) in enumerate(conflicts):
+            with st.expander(f"Conflict {idx + 1}: {task1.title} & {task2.title} both at {task1.scheduled_time}"):
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    st.write(f"**{task1.pet.name}'s {task1.title}**")
+                    new_time_1 = st.text_input(
+                        f"New time for {task1.title}",
+                        value=task1.scheduled_time or "08:00",
+                        key=f"conflict_time_{idx}_task1",
+                    )
+                    if st.button(f"Update {task1.title}", key=f"update_btn_{idx}_task1"):
+                        task1.scheduled_time = new_time_1
+                        st.success(f"Updated {task1.title} to {new_time_1}")
+                        st.rerun()
+                
+                with col2:
+                    st.write(f"**{task2.pet.name}'s {task2.title}**")
+                    new_time_2 = st.text_input(
+                        f"New time for {task2.title}",
+                        value=task2.scheduled_time or "09:00",
+                        key=f"conflict_time_{idx}_task2",
+                    )
+                    if st.button(f"Update {task2.title}", key=f"update_btn_{idx}_task2"):
+                        task2.scheduled_time = new_time_2
+                        st.success(f"Updated {task2.title} to {new_time_2}")
+                        st.rerun()
+    else:
+        st.success(f"✅ {conflict_message}")
+
+    st.subheader("Today's Schedule")
+    schedule_display = scheduler.sort_by_time(plan)
+    
+    if schedule_display:
+        schedule_rows = [
+            {
+                "pet": task.pet.name if task.pet else "unknown",
+                "title": task.title,
+                "priority": task.priority,
+                "time": task.scheduled_time or "TBD",
+                "duration": task.duration_minutes,
+                "status": "✓ Done" if task.completed else "⏳ Pending",
+            }
+            for task in schedule_display
+        ]
+        st.table(schedule_rows)
+    else:
+        st.info("No tasks in the schedule.")
+    schedule_rows = [
+        {
+            "pet": task.pet.name if task.pet else "unknown pet",
+            "title": task.title,
+            "time": task.scheduled_time or "TBD",
+            "priority": task.priority,
+        }
+        for task in plan
+    ]
+    st.table(schedule_rows)

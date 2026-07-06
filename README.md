@@ -74,7 +74,18 @@ Sample test output:
 ```
 # Paste your pytest output here
 ```
+ ## python -m pytest
+======================== test session starts =========================
+platform win32 -- Python 3.13.13, pytest-9.1.1, pluggy-1.6.0
+rootdir: C:\Users\emili\PawPal\ai110-module2show-pawpal-starter
+plugins: anyio-4.14.0
+collected 8 items                                                     
 
+tests\test_pawpal.py ........                                   [100%]
+
+========================= 8 passed in 0.07s ==========================
+
+"Confidence Level 5/5"
 ## 📐 Smarter Scheduling
 
 The scheduler now includes a few lightweight features to make pet-care planning easier to follow.
@@ -90,10 +101,11 @@ The scheduler now includes a few lightweight features to make pet-care planning 
 
 Describe your app in numbered steps so a reader can follow along without watching a video:
 
-1. <!-- Describe this step -->
-2. <!-- Describe this step -->
-3. <!-- Describe this step -->
-4. <!-- Describe this step -->
-5. <!-- Add more steps as needed -->
+1. **Enter owner details**: App launches with default owner "Jordan". Change name in "Owner Details" box if desired.
+2. **Add pets**: Fill "New pet name", "age", "weight", "breed", "color", "mood" and click "Add pet". Repeat for multiple pets (e.g., Mochi, Thanos, Luna).
+3. **Select pet to manage**: Use "Select pet to manage" dropdown to pick which pet to add tasks for. Selection persists across interactions.
+4. **Add tasks**: Enter task "title" (e.g., "Morning walk"), "duration" in minutes, and "priority" level. Click "Add task" to assign to the selected pet.
+5. **Generate schedule**: Click "Generate schedule" to build the daily plan. App sorts tasks by priority and time, displays them in a table. If conflicts exist (same start time), edit times in expandable sections to resolve them.
+6. **Filter and view**: Use "Filter by pet" to focus on one pet's tasks, or "Show tasks" to see only pending/completed items. Tasks display in chronological order.
 
 **Screenshot or video** *(optional)*: <!-- Insert a screenshot or link to a demo video here -->
