@@ -79,6 +79,10 @@ Core actions represented in the skeleton:
 - Did your design change during implementation?
 - If yes, describe at least one change and why you made it.
 
+A clean structure would be:
+1. Dataclasses for Pet, Owner, Task
+2. A Scheduler or Planner class for building the plan
+3. A simple output object or list of scheduled items for the final plan
 ---
 
 ## 2. Scheduling Logic and Tradeoffs
@@ -92,6 +96,8 @@ Core actions represented in the skeleton:
 
 - Describe one tradeoff your scheduler makes.
 - Why is that tradeoff reasonable for this scenario?
+
+The scheduler uses a lightweight conflict check that only warns when two tasks share the same start time. This is simpler and easier to read than a full overlap-duration model, and it is reasonable for this starter app because the main goal is to surface obvious scheduling issues quickly.
 
 ---
 

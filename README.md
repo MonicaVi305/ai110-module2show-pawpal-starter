@@ -34,7 +34,7 @@ pip install -r requirements.txt
 
 ### Suggested workflow
 
-1. Read the scenario carefully and identify requirements and edge cases.
+1. Read the scenario carefully and identify requirements and edge cases.  Three core actions: feed pet, walk a pet, vet visits. 
 2. Draft a UML diagram (classes, attributes, methods, relationships).
 3. Convert UML into Python class stubs (no logic yet).
 4. Implement scheduling logic in small increments.
@@ -53,6 +53,11 @@ Paste a sample of your app's CLI or Streamlit output here so a reader can see wh
 #   09:00 — Feeding (10 min) [priority: high]
 #   ...
 ```
+Today's Schedule
+================
+- Morning Walk for Mochi at 08:00
+- Feed Dinner for Mochi at 12:00
+- Vet Reminder for Luna at 18:00
 
 ## 🧪 Testing PawPal+
 
@@ -72,14 +77,14 @@ Sample test output:
 
 ## 📐 Smarter Scheduling
 
-> Fill in once you've implemented scheduling logic.
+The scheduler now includes a few lightweight features to make pet-care planning easier to follow.
 
 | Feature | Method(s) | Notes |
 |---------|-----------|-------|
-| Task sorting | | e.g., by priority, duration |
-| Filtering | | e.g., skip tasks if time runs out |
-| Conflict handling | | e.g., overlapping time slots |
-| Recurring tasks | | e.g., daily vs. weekly |
+| Sorting behavior | `Scheduler.sort_by_time()` | Orders tasks by their scheduled time in HH:MM format so the day plan is easier to read. |
+| Filtering behavior | `Scheduler.filter_tasks()` | Filters tasks by completion status or pet name to focus on a subset of work. |
+| Conflict detection | `Scheduler.detect_conflicts()` and `Scheduler.conflict_warning()` | Flags tasks that share the same start time so obvious scheduling conflicts are visible. |
+| Recurring task logic | `Task.mark_complete()` | When a daily or weekly task is marked complete, a new task instance is created for the next occurrence. |
 
 ## 📸 Demo Walkthrough
 
